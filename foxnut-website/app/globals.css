@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── DARK FOREST GREEN BACKGROUNDS ── */
+  --color-background: #0c1e0e;
+  --color-surface: #0e2010;
+  --color-surface-container-lowest: #0a1a0c;
+  --color-surface-container-low: #122313;
+  --color-surface-container: #172817;
+  --color-surface-container-high: #1d3020;
+  --color-surface-container-highest: #243826;
+
+  /* ── ON SURFACE TEXT — warm ivory/cream ── */
+  --color-on-background: #f0ead6;
+  --color-on-surface: #f0ead6;
+  --color-on-surface-variant: #a8c098;
+
+  /* ── PRIMARY = RICH GOLD ── */
+  --color-primary: #c89030;
+  --color-primary-container: #a87020;
+  --color-on-primary: #0c1e0e;
+
+  /* ── SECONDARY = BRIGHT ACCENT GOLD ── */
+  --color-secondary: #e8b848;
+  --color-secondary-container: #f0cc78;
+  --color-on-secondary: #0c1e0e;
+
+  /* ── TERTIARY = DEEP OLIVE ── */
+  --color-tertiary: #4a6b2a;
+  --color-tertiary-container: #2a4018;
+  --color-on-tertiary: #e0f0d0;
+
+  /* ── OUTLINES / DIVIDERS ── */
+  --color-outline: #4a704a;
+  --color-outline-variant: #2a4a2c;
+
+  /* ── FIXED TONES ── */
+  --color-primary-fixed: #f0d090;
+  --color-secondary-fixed: #f8e8b0;
+
+  /* ── TYPOGRAPHY ── */
+  --font-body: "Inter", sans-serif;
+  --font-headline: "Playfair Display", serif;
+
+  /* ── SPACING ── */
+  --spacing-gutter: 24px;
+  --spacing-section-gap: 80px;
+  --spacing-margin-mobile: 20px;
+  --spacing-margin-desktop: 64px;
+  --spacing-container-max: 1200px;
+}
+
+/* =============================================
+   SCROLL REVEAL ANIMATIONS
+   ============================================= */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-section.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stagger-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stagger-card.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.delay-100 { transition-delay: 100ms; }
+.delay-200 { transition-delay: 200ms; }
+.delay-300 { transition-delay: 300ms; }
+
+/* =============================================
+   CARD EFFECTS
+   ============================================= */
+.minimal-card {
+  background: #172817;
+  border: 1px solid rgba(200, 144, 48, 0.08);
+  transition: border-color 0.4s ease, transform 0.4s ease, box-shadow 0.4s ease;
+}
+.minimal-card:hover {
+  border-color: rgba(200, 144, 48, 0.30);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+.organic-shadow {
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Gold shimmer glow on hover — for product cards */
+.gold-glow:hover {
+  box-shadow: 0 0 0 1px rgba(200, 144, 48, 0.25), 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+.btn-minimal-primary {
+  transition: all 0.3s ease;
+  background-color: #c89030;
+  color: #0c1e0e;
+  font-weight: 600;
+}
+.btn-minimal-primary:hover {
+  background-color: #e8b848;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(200, 144, 48, 0.35);
+}
+
+.btn-minimal-secondary {
+  border: 1px solid rgba(200, 144, 48, 0.35);
+  color: #c89030;
+  transition: all 0.3s ease;
+}
+.btn-minimal-secondary:hover {
+  border-color: #c89030;
+  background-color: rgba(200, 144, 48, 0.06);
+  transform: translateY(-1px);
+}
+
+/* =============================================
+   FONT UTILITIES
+   ============================================= */
+.font-body-md {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+.font-headline-md {
+  font-family: var(--font-headline);
+  font-size: 30px;
+  line-height: 38px;
+  font-weight: 600;
+}
+.font-headline-md-mobile {
+  font-family: var(--font-headline);
+  font-size: 22px;
+  line-height: 30px;
+  font-weight: 600;
+}
+.font-title-sm {
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.font-body-lg {
+  font-family: var(--font-body);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+}
+.font-label-sm {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: 0.02em;
+  font-weight: 500;
+}
+.font-display-lg {
+  font-family: var(--font-headline);
+  font-size: 44px;
+  line-height: 52px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+.font-display-lg-mobile {
+  font-family: var(--font-headline);
+  font-size: 30px;
+  line-height: 38px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
+
+/* =============================================
+   BASE BODY
+   ============================================= */
+body {
+  background-color: #0c1e0e;
+  color: #f0ead6;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =============================================
+   GOLD DIVIDER / ACCENT LINE
+   ============================================= */
+.gold-divider {
+  background: linear-gradient(90deg, transparent, #c89030, transparent);
+  height: 1px;
+  width: 100%;
+}
