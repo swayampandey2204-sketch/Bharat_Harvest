@@ -60,14 +60,14 @@ export default function Home() {
           </div>
 
           {/* Hero Image */}
-          <div className="flex-1 w-full relative h-[360px] md:h-[500px] rounded-2xl overflow-hidden border border-[#c89030]/20 shadow-[0_24px_60px_rgba(0,0,0,0.5)] mt-8 md:mt-0">
+          <div className="flex-1 w-full relative h-[360px] md:h-[500px] rounded-2xl overflow-hidden border border-[#c89030]/20 shadow-[0_24px_60px_rgba(0,0,0,0.5)] mt-8 md:mt-0 bg-[#041909] flex items-center justify-center">
             <img
-              alt="Bharat Harvest premium packets display"
-              className="w-full h-full object-cover"
-              src="/images/bharat-harvest-products.jpg"
+              alt="Bharat Harvest Organic"
+              className="w-full h-full object-contain"
+              src="/images/bharat-harvest-logo-hero-dark.jpg"
             />
             {/* Subtle gold vignette overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0c1e0e]/40 via-transparent to-transparent pointer-events-none"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0c1e0e]/20 via-transparent to-transparent pointer-events-none"></div>
           </div>
         </section>
 

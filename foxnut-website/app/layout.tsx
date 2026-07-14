@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { WishlistProvider } from "@/contexts/WishlistContext";
+import { AuthGuardProvider } from "@/contexts/AuthGuardContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -34,9 +35,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <WishlistProvider>
-          {children}
-        </WishlistProvider>
+        <AuthGuardProvider>
+          <WishlistProvider>
+            {children}
+          </WishlistProvider>
+        </AuthGuardProvider>
       </body>
     </html>
   );

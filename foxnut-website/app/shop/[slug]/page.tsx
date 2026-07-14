@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import ProductImage from '@/components/ProductImage';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuthGuard } from '@/contexts/AuthGuardContext';
 
 interface ProductDetails {
   name: string;
@@ -78,7 +79,7 @@ const productsDetailsCatalog: Record<string, ProductDetails> = {
     tagline: 'Light & Clean Foxnuts',
     description:
       'Lightly roasted with a touch of cold-pressed oil and dusted with pure mineral-rich Himalayan pink salt. Simple, elegant, and perfectly balanced — highlighting the natural nutty flavour of the lotus seed at its finest.',
-    image: '/images/salt-pepper.png',
+    image: '/images/himalayan-salt.jpg',
     category: 'Flavoured Roast',
     sizes: [
       { label: '50g Pouch', price: 189 },
@@ -155,6 +156,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { checkAuthAndExecute } = useAuthGuard();
   const isWishlisted = isInWishlist(slug);
 
   const currentSize = product.sizes[selectedSize] || product.sizes[0];
@@ -170,33 +172,35 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   };
 
   const handleAddToCart = () => {
-    const productId = idMap[slug] || slug;
-    try {
-      const cart = JSON.parse(localStorage.getItem('bharat-harvest-cart') || '[]');
-      const existingIndex = cart.findIndex(
-        (item: any) => item.id === productId && item.packSize === currentSize.label
-      );
-      if (existingIndex > -1) {
-        cart[existingIndex].quantity += quantity;
-      } else {
-        cart.push({
-          id: productId,
-          name: product.name,
-          price: currentSize.price,
-          packSize: currentSize.label,
-          image: product.image,
-          slug,
-          quantity,
-          category: product.category,
-        });
+    checkAuthAndExecute(() => {
+      const productId = idMap[slug] || slug;
+      try {
+        const cart = JSON.parse(localStorage.getItem('bharat-harvest-cart') || '[]');
+        const existingIndex = cart.findIndex(
+          (item: any) => item.id === productId && item.packSize === currentSize.label
+        );
+        if (existingIndex > -1) {
+          cart[existingIndex].quantity += quantity;
+        } else {
+          cart.push({
+            id: productId,
+            name: product.name,
+            price: currentSize.price,
+            packSize: currentSize.label,
+            image: product.image,
+            slug,
+            quantity,
+            category: product.category,
+          });
+        }
+        localStorage.setItem('bharat-harvest-cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('bharat-harvest-cart-updated'));
+        setAdded(true);
+        setTimeout(() => setAdded(false), 2000);
+      } catch (e) {
+        console.error(e);
       }
-      localStorage.setItem('bharat-harvest-cart', JSON.stringify(cart));
-      window.dispatchEvent(new Event('bharat-harvest-cart-updated'));
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1600);
-    } catch (e) {
-      console.error(e);
-    }
+    });
   };
 
   const suggestedKeys = Object.keys(productsDetailsCatalog).filter((k) => k !== slug).slice(0, 3);
@@ -329,14 +333,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
               {/* Wishlist Icon */}
               <button
-                onClick={() => toggleWishlist({
+                onClick={() => checkAuthAndExecute(() => toggleWishlist({
                   name: product.name,
                   tagline: product.tagline,
                   desc: product.description,
                   image: product.image,
                   category: product.category,
                   slug: slug,
-                })}
+                }))}
                 aria-label="Toggle wishlist"
                 className="w-12 h-12 flex items-center justify-center rounded-xl border border-[#c89030]/25 text-[#c89030] hover:bg-[#c89030]/10 hover:border-[#c89030] transition-all duration-300 cursor-pointer shrink-0"
               >

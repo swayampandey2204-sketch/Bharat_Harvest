@@ -6,9 +6,18 @@ import Footer from '@/components/Footer';
 import ProductImage from '@/components/ProductImage';
 import Link from 'next/link';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useRouter } from 'next/navigation';
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist, clearWishlist, showToast } = useWishlist();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    const userStr = localStorage.getItem('bharat-harvest-user');
+    if (!userStr) {
+      router.push(`/login?redirect=${encodeURIComponent('/wishlist')}`);
+    }
+  }, [router]);
 
   const handleAddToCart = (product: any) => {
     try {

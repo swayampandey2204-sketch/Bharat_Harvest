@@ -6,6 +6,8 @@ import Footer from '@/components/Footer';
 import Link from 'next/link';
 import ProductImage from '@/components/ProductImage';
 
+import { useRouter } from 'next/navigation';
+
 interface CartItem {
   id: string;
   name: string;
@@ -20,6 +22,14 @@ interface CartItem {
 export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const userStr = localStorage.getItem('bharat-harvest-user');
+    if (!userStr) {
+      router.push(`/login?redirect=${encodeURIComponent('/cart')}`);
+    }
+  }, [router]);
 
   useEffect(() => {
     try {

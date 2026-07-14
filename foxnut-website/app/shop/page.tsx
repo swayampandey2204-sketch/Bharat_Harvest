@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import ProductImage from '@/components/ProductImage';
 import Link from 'next/link';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuthGuard } from '@/contexts/AuthGuardContext';
 
 interface ProductItem {
   id: string;
@@ -64,7 +65,7 @@ const productsCatalog: ProductItem[] = [
     tagline: 'Light & Clean Foxnuts',
     desc: 'Lightly roasted with a touch of cold-pressed oil and dusted with pure Himalayan pink salt.',
     slug: 'himalayan-salt',
-    image: '/images/salt-pepper.png',
+    image: '/images/himalayan-salt.jpg',
     category: 'flavored',
     sizes: [
       { label: '50g Pouch', price: 189 },
@@ -125,6 +126,7 @@ export default function ShopPage() {
   );
   const [addedSlug, setAddedSlug] = useState<string | null>(null);
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { checkAuthAndExecute } = useAuthGuard();
 
   const handleSizeChange = (slug: string, index: number) =>
     setSelectedSizes((prev) => ({ ...prev, [slug]: index }));
@@ -227,7 +229,7 @@ export default function ShopPage() {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      toggleWishlist(product);
+                      checkAuthAndExecute(() => toggleWishlist(product));
                     }}
                     aria-label="Toggle wishlist"
                     className="absolute top-3 right-3 z-10 w-9.5 h-9.5 rounded-full bg-[#0c1e0e]/75 hover:bg-[#0c1e0e]/95 border border-[#c89030]/20 hover:border-[#c89030] flex items-center justify-center text-[#c89030] hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md"
@@ -284,7 +286,7 @@ export default function ShopPage() {
                       <span className="text-[10px] text-[#4a704a] mt-0.5">{currentSize.label}</span>
                     </div>
                     <button
-                      onClick={() => addToCart(product, sizeIndex)}
+                      onClick={() => checkAuthAndExecute(() => addToCart(product, sizeIndex))}
                       className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-bold transition-all duration-200 ${
                         justAdded
                           ? 'bg-[#4a6b2a] text-[#f0ead6]'

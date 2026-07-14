@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useAuthGuard } from '@/contexts/AuthGuardContext';
 
 interface UserProfile {
   name: string;
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [user, setUser] = useState<UserProfile | null>(null);
   const { wishlistCount } = useWishlist();
+  const { openAuthModal } = useAuthGuard();
 
   const updateUser = () => {
     try {
@@ -118,6 +120,12 @@ export default function Navbar() {
           {/* Wishlist Icon */}
           <Link
             href="/wishlist"
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                openAuthModal();
+              }
+            }}
             aria-label="View wishlist"
             className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#c89030]/10 text-[#c89030] hover:text-[#e8b848] transition-all duration-200"
           >
@@ -132,6 +140,12 @@ export default function Navbar() {
           {/* Cart Icon */}
           <Link
             href="/cart"
+            onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                openAuthModal();
+              }
+            }}
             aria-label="View cart"
             className="relative flex items-center justify-center w-10 h-10 rounded-full hover:bg-[#c89030]/10 text-[#c89030] hover:text-[#e8b848] transition-all duration-200"
           >
@@ -191,7 +205,15 @@ export default function Navbar() {
             <Link
               key={link.label}
               href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                if (link.label === 'Wishlist' && !user) {
+                  e.preventDefault();
+                  setMobileMenuOpen(false);
+                  openAuthModal();
+                } else {
+                  setMobileMenuOpen(false);
+                }
+              }}
               className="text-[13px] font-semibold uppercase tracking-widest text-[#f0ead6] hover:text-[#c89030] py-2 border-b border-[#c89030]/10 transition-colors last:border-b-0"
             >
               {link.label}

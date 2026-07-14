@@ -144,13 +144,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         console.error('Failed to sync wishlist from database:', err);
       }
     } else {
-      // Guest User: Read from localStorage
-      try {
-        const guestWishlistStr = localStorage.getItem('bharat-harvest-wishlist') || '[]';
-        setWishlist(JSON.parse(guestWishlistStr));
-      } catch (e) {
-        setWishlist([]);
-      }
+      // Guest User: Clear state and ensure no local data is stored
+      setWishlist([]);
+      localStorage.removeItem('bharat-harvest-wishlist');
     }
   };
 
@@ -199,16 +195,8 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         console.error(err);
       }
     } else {
-      // Guest
-      const guestList = [...wishlist];
-      const exists = guestList.some((item) => item.slug === product.slug);
-      if (!exists) {
-        // Ensure catalog properties match structure
-        guestList.push(product);
-        localStorage.setItem('bharat-harvest-wishlist', JSON.stringify(guestList));
-        setWishlist(guestList);
-        showToast('Added to Wishlist ❤️', 'success');
-      }
+      // Guest: Do not perform any additions
+      console.warn('Unauthenticated addToWishlist action prevented.');
     }
   };
 
@@ -246,13 +234,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         console.error(err);
       }
     } else {
-      // Guest
-      const guestList = wishlist.filter(
-        (item) => (item._id || item.id) !== productId && item.slug !== productId
-      );
-      localStorage.setItem('bharat-harvest-wishlist', JSON.stringify(guestList));
-      setWishlist(guestList);
-      showToast('Removed from Wishlist', 'info');
+      console.warn('Unauthenticated removeFromWishlist action prevented.');
     }
   };
 
@@ -297,9 +279,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         console.error(err);
       }
     } else {
-      localStorage.removeItem('bharat-harvest-wishlist');
       setWishlist([]);
-      showToast('Wishlist Cleared', 'info');
     }
   };
 

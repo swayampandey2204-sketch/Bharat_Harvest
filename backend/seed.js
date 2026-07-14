@@ -54,7 +54,7 @@ const productsData = [
     tagline: 'Light & Clean Foxnuts',
     desc: 'Lightly roasted with a touch of cold-pressed oil and dusted with pure Himalayan pink salt.',
     slug: 'himalayan-salt',
-    image: '/images/salt-pepper.png',
+    image: '/images/himalayan-salt.jpg',
     categorySlug: 'flavored',
     variants: [
       { packSize: '50g Pouch', price: 189, stock: 140 },
