@@ -184,17 +184,18 @@ const forgotPassword = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    throw new ApiError(404, 'User not found with this email');
+    throw new ApiError(404, 'This email address is not registered');
   }
 
   const resetToken = crypto.randomBytes(32).toString('hex');
-  const resetTokenExpires = Date.now() + 3600000; // 1 hour
+  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const resetTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes (strict)
 
-  user.passwordResetToken = resetToken;
+  user.passwordResetToken = hashedToken;
   user.passwordResetExpires = resetTokenExpires;
   await user.save({ validateBeforeSave: false });
 
-  // Send password reset email
+  // Send password reset email with unhashed token
   await sendPasswordResetEmail(email, resetToken);
 
   return res
@@ -210,13 +211,16 @@ const resetPassword = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Reset token is required');
   }
 
+  // Hash the incoming query token to match database hashed value
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
   const user = await User.findOne({
-    passwordResetToken: token,
+    passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
 
   if (!user) {
-    throw new ApiError(400, 'Invalid or expired reset token');
+    throw new ApiError(400, 'Invalid reset token or the reset link has expired');
   }
 
   user.password = password;

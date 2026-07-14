@@ -13,14 +13,14 @@ const {
 } = require('../controllers/authController');
 const { verifyJWT } = require('../middleware/auth');
 const validate = require('../middleware/validate');
-const { registerSchema, loginSchema, resetPasswordSchema } = require('../validators/authValidator');
+const { registerSchema, loginSchema, resetPasswordSchema, forgotPasswordSchema } = require('../validators/authValidator');
 
 router.post('/register', validate(registerSchema), registerUser);
 router.post('/login', validate(loginSchema), loginUser);
 router.post('/logout', verifyJWT, logoutUser);
 router.post('/refresh-token', refreshAccessToken);
 router.get('/verify-email', verifyEmail);
-router.post('/forgot-password', forgotPassword);
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
 router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
 router.get('/profile', verifyJWT, getUserProfile);
 router.put('/profile', verifyJWT, updateUserProfile);
