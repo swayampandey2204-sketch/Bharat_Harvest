@@ -16,7 +16,7 @@ const sendEmail = async ({ to, subject, html }) => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL || 'http://localhost:3000'}/verify-email?token=${token}`;
+  const url = `${process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app'}/verify-email?token=${token}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #c89030; border-radius: 10px; background-color: #0c1e0e; color: #f0ead6;">
       <h2 style="color: #c89030; text-align: center;">Verify Your Account</h2>
@@ -34,7 +34,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+  const url = `${process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app'}/reset-password?token=${token}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #c89030; border-radius: 10px; background-color: #0c1e0e; color: #f0ead6;">
       <h2 style="color: #c89030; text-align: center;">Reset Your Password</h2>
