@@ -11,11 +11,13 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [resetUrl, setResetUrl] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
+    setResetUrl(null);
     setLoading(true);
 
     try {
@@ -33,7 +35,15 @@ export default function ForgotPasswordPage() {
         throw new Error(result.message || 'Failed to send password reset email.');
       }
 
-      setSuccess('Password reset link sent successfully. Please check your email.');
+      if (result.data?.resetUrl) {
+        setResetUrl(result.data.resetUrl);
+      }
+
+      setSuccess(
+        result.data?.emailSent
+          ? 'Password reset link sent to your email inbox! Please check your email.'
+          : 'Password reset link generated successfully.'
+      );
       setEmail('');
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -53,7 +63,7 @@ export default function ForgotPasswordPage() {
               Forgot Password
             </h1>
             <p className="text-[14px] text-[#a8c098] leading-relaxed">
-              Enter your email address below and we will send you a secure link to reset your password.
+              Enter your email address below and we will generate a secure link to reset your password.
             </p>
           </div>
 
@@ -65,9 +75,22 @@ export default function ForgotPasswordPage() {
           )}
 
           {success && (
-            <div className="mb-6 p-4 rounded-xl bg-[#4a6b2a]/20 border border-[#4a6b2a]/30 text-[#a8c098] text-[13px] flex items-start gap-2.5">
-              <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5 text-[#c89030]">check_circle</span>
-              <span>{success}</span>
+            <div className="mb-6 p-4 rounded-xl bg-[#4a6b2a]/20 border border-[#4a6b2a]/30 text-[#a8c098] text-[13px] flex flex-col gap-3">
+              <div className="flex items-start gap-2.5">
+                <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5 text-[#c89030]">check_circle</span>
+                <span>{success}</span>
+              </div>
+              {resetUrl && (
+                <div className="mt-2 pt-3 border-t border-[#c89030]/20 flex flex-col gap-2.5">
+                  <p className="text-[12px] text-[#f0ead6]">Click below to set your new password:</p>
+                  <a
+                    href={resetUrl}
+                    className="w-full py-3 bg-[#c89030] text-[#0c1e0e] font-bold text-[13px] rounded-xl hover:bg-[#e8b848] transition-all text-center shadow-md active:scale-95 block"
+                  >
+                    Reset Password Now →
+                  </a>
+                </div>
+              )}
             </div>
           )}
 

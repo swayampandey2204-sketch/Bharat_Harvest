@@ -10,8 +10,10 @@ const sendEmail = async ({ to, subject, html }) => {
     };
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${to}`);
+    return true;
   } catch (error) {
     console.error(`Email delivery failed to ${to}: ${error.message}`);
+    return false;
   }
 };
 
@@ -48,7 +50,7 @@ const sendPasswordResetEmail = async (email, token) => {
       <p style="margin-top: 40px; border-t: 1px solid #c89030; padding-top: 20px; font-size: 12px; color: #4a704a; text-align: center;">Bharat Harvest — Premium Artisanal Fox Nuts</p>
     </div>
   `;
-  await sendEmail({ to: email, subject: 'Reset Your Password - Bharat Harvest', html });
+  return await sendEmail({ to: email, subject: 'Reset Your Password - Bharat Harvest', html });
 };
 
 const sendOrderConfirmationEmail = async (email, order) => {

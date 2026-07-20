@@ -196,11 +196,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
 
   // Send password reset email with unhashed token
-  await sendPasswordResetEmail(email, resetToken);
+  const emailSent = await sendPasswordResetEmail(email, resetToken);
+
+  const clientUrl = (process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app').replace(/\/$/, '');
+  const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, 'Password reset email sent successfully'));
+    .json(
+      new ApiResponse(
+        200,
+        { resetUrl, emailSent: !!emailSent },
+        'Password reset link generated successfully'
+      )
+    );
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
