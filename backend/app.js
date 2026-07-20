@@ -32,9 +32,27 @@ if (!fs.existsSync(uploadsDir)) {
 
 // Global Middlewares
 app.use(helmet());
+// Dynamic CORS configuration allowing localhost, Vercel deployments (*.vercel.app), and configured origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+  ...(process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : []),
+].filter(Boolean).map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        allowedOrigins.includes('*') ||
+        origin.endsWith('.vercel.app')
+      ) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
   })
 );

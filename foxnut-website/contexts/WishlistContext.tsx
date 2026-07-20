@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_BASE_URL } from '@/utils/api';
 
 export interface ProductItem {
   _id?: string;
@@ -53,10 +54,18 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     return !!userStr;
   };
 
+  const getAuthHeaders = () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('bharat-harvest-token') : null;
+    return {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+    };
+  };
+
   // Fetch product mappings (slug -> db _id)
   const fetchDbProductMappings = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/v1/products');
+      const res = await fetch(`${API_BASE_URL}/products`);
       const data = await res.json();
       if (res.ok && data?.success && data?.data?.products) {
         const mapping: Record<string, string> = {};
@@ -78,9 +87,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     if (logged) {
       try {
         // 1. Fetch user's wishlist from DB
-        const res = await fetch('http://localhost:5001/api/v1/wishlist', {
+        const res = await fetch(`${API_BASE_URL}/wishlist`, {
           method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           credentials: 'include',
         });
         const data = await res.json();
@@ -98,7 +107,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             // Re-fetch mappings just to be sure we have them
             let currentMap = dbProductMap;
             if (Object.keys(currentMap).length === 0) {
-              const mapRes = await fetch('http://localhost:5001/api/v1/products');
+              const mapRes = await fetch(`${API_BASE_URL}/products`);
               const mapData = await mapRes.json();
               if (mapRes.ok && mapData?.success && mapData?.data?.products) {
                 const mapping: Record<string, string> = {};
@@ -115,9 +124,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             for (const item of guestItems) {
               const dbId = currentMap[item.slug];
               if (dbId && !dbIds.has(dbId.toString())) {
-                await fetch('http://localhost:5001/api/v1/wishlist/add', {
+                await fetch(`${API_BASE_URL}/wishlist/add`, {
                   method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
+                  headers: getAuthHeaders(),
                   body: JSON.stringify({ productId: dbId }),
                   credentials: 'include',
                 });
@@ -128,9 +137,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             localStorage.removeItem('bharat-harvest-wishlist');
 
             // Re-fetch final merged database list
-            const finalRes = await fetch('http://localhost:5001/api/v1/wishlist', {
+            const finalRes = await fetch(`${API_BASE_URL}/wishlist`, {
               method: 'GET',
-              headers: { 'Content-Type': 'application/json' },
+              headers: getAuthHeaders(),
               credentials: 'include',
             });
             const finalData = await finalRes.json();
@@ -178,9 +187,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       try {
-        const res = await fetch('http://localhost:5001/api/v1/wishlist/add', {
+        const res = await fetch(`${API_BASE_URL}/wishlist/add`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ productId: dbId }),
           credentials: 'include',
         });
@@ -219,9 +228,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const res = await fetch('http://localhost:5001/api/v1/wishlist/remove', {
+        const res = await fetch(`${API_BASE_URL}/wishlist/remove`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ productId: dbId }),
           credentials: 'include',
         });
@@ -266,9 +275,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const clearWishlist = async () => {
     if (isLoggedIn) {
       try {
-        const res = await fetch('http://localhost:5001/api/v1/wishlist/clear', {
+        const res = await fetch(`${API_BASE_URL}/wishlist/clear`, {
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           credentials: 'include',
         });
         if (res.ok) {

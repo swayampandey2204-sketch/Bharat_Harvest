@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useAuthGuard } from '@/contexts/AuthGuardContext';
+import { API_BASE_URL } from '@/utils/api';
 
 interface UserProfile {
   name: string;
@@ -34,7 +35,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
-      await fetch('http://localhost:5001/api/v1/auth/logout', {
+      await fetch(`${API_BASE_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -46,6 +47,7 @@ export default function Navbar() {
     } finally {
       // Always clear local state even if backend request fails
       localStorage.removeItem('bharat-harvest-user');
+      localStorage.removeItem('bharat-harvest-token');
       setUser(null);
       window.dispatchEvent(new Event('bharat-harvest-auth-updated'));
       window.location.href = '/';

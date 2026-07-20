@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { API_BASE_URL } from '@/utils/api';
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -47,7 +48,7 @@ function ResetPasswordForm() {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5001/api/v1/auth/reset-password?token=${encodeURIComponent(token)}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/reset-password?token=${encodeURIComponent(token)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -27,18 +27,11 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, 'User with this email already exists');
   }
 
-  // Generate secure verification token
-  const verificationToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-  const verificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes (strict)
-
   const user = await User.create({
     name,
     email,
     password,
-    isVerified: false,
-    verificationToken: hashedToken,
-    verificationTokenExpires,
+    isVerified: true,
   });
 
   const createdUser = await User.findById(user._id).select('-password');
@@ -46,16 +39,13 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, 'Something went wrong while registering the user');
   }
 
-  // Send email containing unhashed token
-  await sendVerificationEmail(email, verificationToken);
-
   return res
     .status(201)
     .json(
       new ApiResponse(
         201,
         createdUser,
-        'Verification email sent successfully. Please check your inbox.'
+        'User registered successfully'
       )
     );
 });
@@ -66,10 +56,6 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) {
     throw new ApiError(404, 'User does not exist');
-  }
-
-  if (!user.isVerified) {
-    throw new ApiError(401, 'Please verify your email address before continuing. Check your inbox for the verification email.');
   }
 
   const isPasswordValid = await user.comparePassword(password);
@@ -176,19 +162,13 @@ const verifyEmail = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Verification token is required');
   }
 
-  // Hash incoming token to match database SHA-256 value
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
   const user = await User.findOne({
-    verificationToken: hashedToken,
+    verificationToken: token,
+    verificationTokenExpires: { $gt: Date.now() },
   });
 
   if (!user) {
-    throw new ApiError(400, 'Verification link is invalid');
-  }
-
-  if (user.verificationTokenExpires < Date.now()) {
-    throw new ApiError(400, 'Verification link has expired');
+    throw new ApiError(400, 'Invalid or expired verification token');
   }
 
   user.isVerified = true;
@@ -276,42 +256,12 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, 'Profile updated successfully'));
 });
 
-const resendVerificationEmail = asyncHandler(async (req, res) => {
-  const { email } = req.body;
-
-  const user = await User.findOne({ email });
-  if (!user) {
-    throw new ApiError(404, 'This email address is not registered');
-  }
-
-  if (user.isVerified) {
-    throw new ApiError(400, 'This email is already verified');
-  }
-
-  // Generate secure verification token
-  const verificationToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-  const verificationTokenExpires = Date.now() + 30 * 60 * 1000; // 30 minutes
-
-  user.verificationToken = hashedToken;
-  user.verificationTokenExpires = verificationTokenExpires;
-  await user.save({ validateBeforeSave: false });
-
-  // Send email containing unhashed token
-  await sendVerificationEmail(email, verificationToken);
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, {}, 'Verification email sent successfully'));
-});
-
 module.exports = {
   registerUser,
   loginUser,
   logoutUser,
   refreshAccessToken,
   verifyEmail,
-  resendVerificationEmail,
   forgotPassword,
   resetPassword,
   getUserProfile,

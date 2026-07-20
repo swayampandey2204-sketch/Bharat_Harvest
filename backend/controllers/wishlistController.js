@@ -32,7 +32,7 @@ const addToWishlist = asyncHandler(async (req, res) => {
     wishlist = await Wishlist.create({ user: req.user._id, products: [] });
   }
 
-  const isAlreadyAdded = wishlist.products.includes(productId);
+  const isAlreadyAdded = wishlist.products.some((id) => id.toString() === productId);
   if (isAlreadyAdded) {
     return res
       .status(400)
@@ -100,7 +100,7 @@ const toggleWishlist = asyncHandler(async (req, res) => {
     wishlist = await Wishlist.create({ user: req.user._id, products: [] });
   }
 
-  const isAlreadyAdded = wishlist.products.includes(productId);
+  const isAlreadyAdded = wishlist.products.some((id) => id.toString() === productId);
 
   if (isAlreadyAdded) {
     wishlist.products = wishlist.products.filter((id) => id.toString() !== productId);
