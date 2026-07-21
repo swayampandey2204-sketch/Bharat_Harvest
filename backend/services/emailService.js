@@ -18,8 +18,16 @@ const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
+const getClientUrl = () => {
+  let baseUrl = process.env.CLIENT_URL;
+  if (!baseUrl || (process.env.NODE_ENV === 'production' && baseUrl.includes('localhost'))) {
+    baseUrl = 'https://bharat-harvest.vercel.app';
+  }
+  return baseUrl.replace(/\/$/, '');
+};
+
 const sendVerificationEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app'}/verify-email?token=${token}`;
+  const url = `${getClientUrl()}/verify-email?token=${token}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #c89030; border-radius: 10px; background-color: #0c1e0e; color: #f0ead6;">
       <h2 style="color: #c89030; text-align: center;">Verify Your Account</h2>
@@ -37,7 +45,7 @@ const sendVerificationEmail = async (email, token) => {
 };
 
 const sendPasswordResetEmail = async (email, token) => {
-  const url = `${process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app'}/reset-password?token=${token}`;
+  const url = `${getClientUrl()}/reset-password?token=${token}`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #c89030; border-radius: 10px; background-color: #0c1e0e; color: #f0ead6;">
       <h2 style="color: #c89030; text-align: center;">Reset Your Password</h2>
