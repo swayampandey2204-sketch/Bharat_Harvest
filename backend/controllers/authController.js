@@ -195,19 +195,20 @@ const forgotPassword = asyncHandler(async (req, res) => {
   user.passwordResetExpires = resetTokenExpires;
   await user.save({ validateBeforeSave: false });
 
-  // Send password reset email with unhashed token
-  const emailSent = await sendPasswordResetEmail(email, resetToken);
-
-  const clientUrl = (process.env.CLIENT_URL || 'https://bharat-harvest.vercel.app').replace(/\/$/, '');
-  const resetUrl = `${clientUrl}/reset-password?token=${resetToken}`;
+  try {
+    // Send password reset email with unhashed token
+    await sendPasswordResetEmail(email, resetToken);
+  } catch (emailErr) {
+    throw new ApiError(500, emailErr.message || 'Email delivery failed. Please check SMTP provider credentials.');
+  }
 
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        { resetUrl, emailSent: !!emailSent },
-        'Password reset link generated successfully'
+        {},
+        'Password reset link has been sent to your email address. Please check your inbox.'
       )
     );
 });

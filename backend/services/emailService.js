@@ -1,19 +1,20 @@
 const transporter = require('../config/nodemailer');
 
 const sendEmail = async ({ to, subject, html }) => {
+  const mailOptions = {
+    from: `"Bharat Harvest" <${process.env.EMAIL_FROM || 'no-reply@bharatharvest.com'}>`,
+    to,
+    subject,
+    html,
+  };
+
   try {
-    const mailOptions = {
-      from: `"Bharat Harvest" <${process.env.EMAIL_FROM || 'no-reply@bharatharvest.com'}>`,
-      to,
-      subject,
-      html,
-    };
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent successfully to ${to}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent successfully to ${to}: ${info?.messageId || 'Success'}`);
     return true;
   } catch (error) {
-    console.error(`Email delivery failed to ${to}: ${error.message}`);
-    return false;
+    console.error(`Email delivery failed to ${to}:`, error);
+    throw new Error(`Email delivery failed: ${error.message}`);
   }
 };
 
