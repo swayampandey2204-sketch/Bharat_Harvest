@@ -34,10 +34,12 @@ const sendVerificationEmail = async (email, token) => {
       <p>Hello,</p>
       <p>Thank you for registering with Bharat Harvest. Please click the button below to verify your email address and activate your account:</p>
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${url}" style="background-color: #c89030; color: #0c1e0e; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verify Email</a>
+        <a href="${url}" target="_blank" rel="noopener noreferrer" style="background-color: #c89030; color: #0c1e0e; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Verify Email</a>
       </div>
       <p>If the button doesn't work, you can copy and paste the following link into your browser:</p>
-      <p style="word-break: break-all; color: #a8c098;">${url}</p>
+      <p style="word-break: break-all;">
+        <a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #c89030; text-decoration: underline;">${url}</a>
+      </p>
       <p style="margin-top: 40px; border-t: 1px solid #c89030; padding-top: 20px; font-size: 12px; color: #4a704a; text-align: center;">Bharat Harvest — Premium Artisanal Fox Nuts</p>
     </div>
   `;
@@ -52,10 +54,12 @@ const sendPasswordResetEmail = async (email, token) => {
       <p>Hello,</p>
       <p>We received a request to reset your password. Please click the button below to reset it. This link is valid for 1 hour:</p>
       <div style="text-align: center; margin: 30px 0;">
-        <a href="${url}" style="background-color: #c89030; color: #0c1e0e; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
+        <a href="${url}" target="_blank" rel="noopener noreferrer" style="background-color: #c89030; color: #0c1e0e; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
       </div>
       <p>If you did not request a password reset, please ignore this email.</p>
-      <p style="word-break: break-all; color: #a8c098;">${url}</p>
+      <p style="word-break: break-all;">
+        <a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #c89030; text-decoration: underline;">${url}</a>
+      </p>
       <p style="margin-top: 40px; border-t: 1px solid #c89030; padding-top: 20px; font-size: 12px; color: #4a704a; text-align: center;">Bharat Harvest — Premium Artisanal Fox Nuts</p>
     </div>
   `;
