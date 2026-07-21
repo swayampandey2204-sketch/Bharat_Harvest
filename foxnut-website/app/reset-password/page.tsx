@@ -10,7 +10,7 @@ import { API_BASE_URL } from '@/utils/api';
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const [token, setToken] = useState<string | null>(null);
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,10 +19,19 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) {
+    const urlToken =
+      searchParams.get('token') ||
+      (typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('token')
+        : null);
+
+    if (urlToken) {
+      setToken(urlToken);
+      setError(null);
+    } else {
       setError('Invalid reset token or link has expired.');
     }
-  }, [token]);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
