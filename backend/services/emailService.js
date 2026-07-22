@@ -2,15 +2,14 @@ const transporter = require('../config/nodemailer');
 
 const sendEmail = async ({ to, subject, html }) => {
   const mailOptions = {
-    from: `"Bharat Harvest" <${process.env.EMAIL_FROM || 'no-reply@bharatharvest.com'}>`,
+    from: `"Bharat Harvest" <${process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@bharatharvest.com'}>`,
     to,
     subject,
     html,
   };
 
-  if (process.env.EMAIL_USER === 'your_smtp_user_id' || !process.env.EMAIL_USER) {
-    console.warn(`⚠️ [SMTP Placeholder Detected] Bypassing actual email send to ${to}`);
-    return true;
+  if (!process.env.EMAIL_USER || process.env.EMAIL_USER === 'your_smtp_user_id') {
+    throw new Error('SMTP email credentials are not configured in backend environment variables (EMAIL_USER & EMAIL_PASS).');
   }
 
   try {
