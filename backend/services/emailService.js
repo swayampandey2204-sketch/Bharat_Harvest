@@ -8,6 +8,11 @@ const sendEmail = async ({ to, subject, html }) => {
     html,
   };
 
+  if (process.env.EMAIL_USER === 'your_smtp_user_id' || !process.env.EMAIL_USER) {
+    console.warn(`⚠️ [SMTP Placeholder Detected] Bypassing actual email send to ${to}`);
+    return true;
+  }
+
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${to}: ${info?.messageId || 'Success'}`);

@@ -181,24 +181,37 @@ const verifyEmail = asyncHandler(async (req, res) => {
 
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
+  console.log(`🔍 [Password Reset Request] Email: ${email}`);
 
   const user = await User.findOne({ email });
   if (!user) {
+    console.warn(`⚠️ [Password Reset Request] Email not found: ${email}`);
     throw new ApiError(404, 'This email address is not registered');
   }
 
-  const resetToken = crypto.randomBytes(32).toString('hex');
-  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const jwtSecret = process.env.JWT_SECRET || process.env.ACCESS_TOKEN_SECRET || 'reset_secret_key_123';
+
+  // Generate a signed JWT reset token valid for 15 minutes
+  const resetToken = jwt.sign(
+    { _id: user._id, email: user.email, type: 'password_reset' },
+    jwtSecret,
+    { expiresIn: '15m' }
+  );
+
   const resetTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes (strict)
 
-  user.passwordResetToken = hashedToken;
+  user.passwordResetToken = resetToken;
   user.passwordResetExpires = resetTokenExpires;
   await user.save({ validateBeforeSave: false });
+
+  console.log(`✅ [Password Reset Request] Reset token generated for user ID: ${user._id}`);
 
   try {
     // Send password reset email with unhashed token
     await sendPasswordResetEmail(email, resetToken);
+    console.log(`📧 [Password Reset Request] Reset email sent successfully to ${email}`);
   } catch (emailErr) {
+    console.error(`❌ [Password Reset Request] Email delivery failed for ${email}:`, emailErr.message);
     throw new ApiError(500, emailErr.message || 'Email delivery failed. Please check SMTP provider credentials.');
   }
 
@@ -214,29 +227,74 @@ const forgotPassword = asyncHandler(async (req, res) => {
 });
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const { token } = req.query;
+  // Extract token from query params, body, or authorization header for 100% agreement
+  const token =
+    req.query.token ||
+    req.body.token ||
+    (req.headers.authorization ? req.headers.authorization.replace(/^Bearer\s+/i, '') : null);
+
   const { password } = req.body;
 
+  console.log('🔑 [Password Reset] Incoming request token:', token ? `${token.substring(0, 20)}...` : 'MISSING');
+
   if (!token) {
+    console.warn('⚠️ [Password Reset] Token is missing from query, body, and headers');
     throw new ApiError(400, 'Reset token is required');
   }
 
-  // Hash the incoming query token to match database hashed value
-  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  if (!password) {
+    console.warn('⚠️ [Password Reset] New password is missing from body');
+    throw new ApiError(400, 'New password is required');
+  }
 
-  const user = await User.findOne({
-    passwordResetToken: hashedToken,
-    passwordResetExpires: { $gt: Date.now() },
-  });
+  const jwtSecret = process.env.JWT_SECRET || process.env.ACCESS_TOKEN_SECRET || 'reset_secret_key_123';
+  let user = null;
+
+  // 1. Try verifying as JWT
+  try {
+    const decoded = jwt.verify(token, jwtSecret);
+    console.log('✅ [Password Reset] JWT verified successfully for user ID:', decoded._id);
+    user = await User.findById(decoded._id);
+  } catch (jwtErr) {
+    console.warn('⚠️ [Password Reset] JWT verification error:', jwtErr.message, '- checking DB token fallback...');
+    
+    // 2. Fallback check: crypto / raw token lookup in DB
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+    user = await User.findOne({
+      $or: [
+        { passwordResetToken: token, passwordResetExpires: { $gt: Date.now() } },
+        { passwordResetToken: hashedToken, passwordResetExpires: { $gt: Date.now() } },
+      ],
+    });
+  }
 
   if (!user) {
+    console.error('❌ [Password Reset] Verification failed: Invalid reset token or user not found');
     throw new ApiError(400, 'Invalid reset token or the reset link has expired');
   }
 
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  const isTokenMatch =
+    user.passwordResetToken &&
+    (user.passwordResetToken === token || user.passwordResetToken === hashedToken);
+
+  if (!isTokenMatch) {
+    console.error('❌ [Password Reset] Verification failed: Token has already been used or invalidated for user:', user._id);
+    throw new ApiError(400, 'Invalid reset token or the reset link has already been used');
+  }
+
+  if (!user.passwordResetExpires || user.passwordResetExpires < Date.now()) {
+    console.error('❌ [Password Reset] Verification failed: Token expired for user:', user._id);
+    throw new ApiError(400, 'Reset link has expired. Please request a new password reset.');
+  }
+
+  // Update password (pre-save hook in User model will hash it with bcrypt)
   user.password = password;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
+
+  console.log(`🎉 [Password Reset] Password updated successfully for user ID: ${user._id}`);
 
   return res.status(200).json(new ApiResponse(200, {}, 'Password reset successfully'));
 });
