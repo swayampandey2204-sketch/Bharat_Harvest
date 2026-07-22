@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer');
 
-const host = process.env.EMAIL_HOST || 'smtp.gmail.com';
+const host = (process.env.EMAIL_HOST || 'smtp.gmail.com').trim();
 const port = Number(process.env.EMAIL_PORT) || 587;
-const user = process.env.EMAIL_USER || '';
-const pass = process.env.EMAIL_PASS || '';
+const user = (process.env.EMAIL_USER || '').trim().replace(/^["']|["']$/g, '');
+const pass = (process.env.EMAIL_PASS || '').trim().replace(/^["']|["']$/g, '');
 
 // Use Nodemailer's built-in 'gmail' service config for Gmail accounts
 const transportOptions = host.includes('gmail')

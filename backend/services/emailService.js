@@ -1,14 +1,17 @@
 const transporter = require('../config/nodemailer');
 
 const sendEmail = async ({ to, subject, html }) => {
+  const emailUser = (process.env.EMAIL_USER || '').trim().replace(/^["']|["']$/g, '');
+  const emailFrom = (process.env.EMAIL_FROM || emailUser || 'no-reply@bharatharvest.com').trim().replace(/^["']|["']$/g, '');
+
   const mailOptions = {
-    from: `"Bharat Harvest" <${process.env.EMAIL_FROM || process.env.EMAIL_USER || 'no-reply@bharatharvest.com'}>`,
+    from: `"Bharat Harvest" <${emailFrom}>`,
     to,
     subject,
     html,
   };
 
-  if (!process.env.EMAIL_USER || process.env.EMAIL_USER === 'your_smtp_user_id') {
+  if (!emailUser || emailUser === 'your_smtp_user_id') {
     throw new Error('SMTP email credentials are not configured in backend environment variables (EMAIL_USER & EMAIL_PASS).');
   }
 
